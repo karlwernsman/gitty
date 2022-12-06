@@ -24,7 +24,6 @@ describe('github auth routes', () => {
       .agent(app)
       .get('/api/v1/github/callback?code=42')
       .redirects(1);
-    console.log('FLAGGGG', res.body);
     expect(res.body).toEqual({
       id: expect.any(String),
       login: 'lottie_dog',
@@ -33,5 +32,9 @@ describe('github auth routes', () => {
       iat: expect.any(Number),
       exp: expect.any(Number),
     });
+  });
+  it('/api/v1/github signs out a user', async () => {
+    const res = await request(app).get('/api/v1/github/dashboard');
+    expect(res.status).toBe(401);
   });
 });
