@@ -2,6 +2,7 @@ const pool = require('../lib/utils/pool.js');
 const setup = require('../data/setup.js');
 const request = require('supertest');
 const app = require('../lib/app.js');
+
 jest.mock('../lib/services/github');
 
 describe('github auth routes', () => {
@@ -34,7 +35,11 @@ describe('github auth routes', () => {
     });
   });
   it('/api/v1/github signs out a user', async () => {
-    const res = await request(app).get('/api/v1/github/dashboard');
-    expect(res.status).toBe(401);
+    const agent = request.agent(app);
+    await agent.get('/api/v1/github/callback?code=42');
+    const deleteUser = await agent.delete('/api/v1/github/dashboard');
+    expect(deleteUser.status).toBe(200);
+    const check = await agent.get('/api/v1/github/dashboard');
+    expect(check.status).toBe(401);
   });
 });
